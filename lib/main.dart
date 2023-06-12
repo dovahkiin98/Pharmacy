@@ -12,6 +12,8 @@ import 'theme/theme.dart';
 import 'ui/auth/login/login_page.dart';
 import 'ui/home/home_container.dart';
 
+const FIREBASE_IP = "192.168.1.105";
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -42,13 +44,13 @@ void main() async {
   if (USE_EMULATOR) {
     // [Firestore | localhost:8080]
     FirebaseFirestore.instance.settings = const Settings(
-      host: '192.168.1.105:8080',
+      host: '$FIREBASE_IP:8080',
       sslEnabled: false,
       persistenceEnabled: false,
     );
 
     // [Authentication | localhost:9099]
-    await FirebaseAuth.instance.useAuthEmulator('192.168.1.105', 9099);
+    await FirebaseAuth.instance.useAuthEmulator(FIREBASE_IP, 9099);
   }
   //endregion
 
