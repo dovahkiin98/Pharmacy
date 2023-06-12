@@ -16,7 +16,7 @@ class LoginController extends ChangeNotifier {
 
   LoginController(BuildContext context) : _repository = context.read() {
     if (kDebugMode) {
-      emailTextController.text = 'ahmad.sattout.ee@outlook.com';
+      emailTextController.text = 'admin@admin.com';
       passwordTextController.text = '12345678';
     }
   }
