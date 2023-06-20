@@ -16,7 +16,15 @@ class StorageController extends ChangeNotifier {
 
   Stream<Med> getMedItemDoc(String id) => _repository.getMedItemDoc(id);
 
-  Future addToStorage(Med med, int count) async {
-    await _repository.addToStorage(med, count);
+  Future addToStorage(
+    Med med,
+    int count,
+    Timestamp expirationDate,
+  ) async {
+    await _repository.addToStorage(
+      med,
+      count,
+      expirationDate,
+    );
   }
 }

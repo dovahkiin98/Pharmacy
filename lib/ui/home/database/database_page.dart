@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pharmacy/main.dart';
-import 'package:pharmacy/model/category.dart';
-import 'package:pharmacy/model/company.dart';
-import 'package:pharmacy/ui/home/database/widget/med_item.dart';
-import 'package:pharmacy/widget/custom_firestore_listview.dart';
-import 'package:pharmacy/utils/utils.dart';
-import 'package:pharmacy/widget/loading_dialog.dart';
+import 'package:pharmacy/ui/home/database/category/category_page.dart';
+import 'package:pharmacy/ui/home/database/company/company_page.dart';
+import 'package:pharmacy/ui/home/database/medication/medication_page.dart';
 import 'package:provider/provider.dart';
 
 import 'database_controller.dart';
-import 'widget/add_category_dialog.dart';
-import 'widget/add_company_dialog.dart';
 
 class DatabasePage extends StatelessWidget {
   const DatabasePage({super.key});
@@ -69,7 +63,6 @@ class _DatabasePageState extends State<_DatabasePage> {
         },
       ),
       body: selectContent(currentPage),
-      floatingActionButton: selectFab(currentPage),
     );
   }
 
@@ -80,124 +73,13 @@ class _DatabasePageState extends State<_DatabasePage> {
     );
 
     if (currentPage == 0) {
-      return CustomFirestoreListView(
-        query: controller.getMedsQuery(),
-        itemBuilder: (context, doc) {
-          return MedItem(doc.data());
-        },
-      );
+      return const MedicationsPage();
     } else if (currentPage == 1) {
-      return CustomFirestoreListView(
-        query: controller.getCategoriesQuery(),
-        itemBuilder: (context, doc) {
-          final category = doc.data();
-
-          return ListTile(
-            title: Text(category.name),
-            subtitle: Text(category.description),
-            isThreeLine: category.description.isNotEmpty,
-          );
-        },
-      );
+      return const CategoriesPage();
     } else if (currentPage == 2) {
-      return CustomFirestoreListView(
-        query: controller.getCompaniesQuery(),
-        itemBuilder: (context, doc) {
-          final company = doc.data();
-
-          return ListTile(
-            title: Text(company.name),
-          );
-        },
-      );
+      return const CompaniesPage();
     }
 
     return Container();
-  }
-
-  Widget? selectFab(int currentPage) {
-    if (currentPage == 0) {
-      return FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(
-            context,
-            rootNavigator: true,
-          ).pushNamed(Routes.ADD_MED);
-        },
-        label: const Text('Add Medication'),
-        icon: const Icon(Icons.add),
-      );
-    } else if (currentPage == 1) {
-      return FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => const AddCategoryDialog(),
-          ).then((value) {
-            if (value is MedCategory) {
-              _addCategory(value);
-            }
-          });
-        },
-        label: const Text('Add Category'),
-        icon: const Icon(Icons.add),
-      );
-    } else if (currentPage == 2) {
-      return FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => const AddCompanyDialog(),
-          ).then((value) {
-            if (value is MedCompany) {
-              _addCompany(value);
-            }
-          });
-        },
-        label: const Text('Add Company'),
-        icon: const Icon(Icons.add),
-      );
-    }
-    return null;
-  }
-
-  void _addCategory(MedCategory category) {
-    showDialog(
-      context: context,
-      builder: (_) => LoadingDialog(
-        future: controller.addCategory(category),
-        message: 'Adding Category',
-      ),
-    ).then((value) {
-      if (value is Exception || value is Error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(getErrorText(value)),
-        ));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Category added'),
-        ));
-      }
-    });
-  }
-
-  void _addCompany(MedCompany company) {
-    showDialog(
-      context: context,
-      builder: (_) => LoadingDialog(
-        future: controller.addCompany(company),
-        message: 'Adding Company',
-      ),
-    ).then((value) {
-      if (value is Exception || value is Error) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(getErrorText(value)),
-        ));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Company added'),
-        ));
-      }
-    });
   }
 }

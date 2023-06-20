@@ -1,0 +1,1 @@
+firebase setup:emulators:ui

@@ -45,13 +45,13 @@ class Repository with ChangeNotifier {
       _firestore.collection('meds').doc(id).snapshots().map((event) => Med.fromJson(event));
 
   Query<StorageItem> getStorageQuery() => _firestore.collection('storage').withConverter(
-        fromFirestore: (snapshot, _) => StorageItem.fromJson(snapshot),
-        toFirestore: (storageItem, _) => storageItem.toJson(),
+        fromFirestore: StorageItem.fromFirestore,
+        toFirestore: StorageItem.toFirestore,
       );
 
   Query<MedCategory> getCategoriesQuery() => _firestore.collection('categories').orderBy('name').withConverter(
-        fromFirestore: (snapshot, _) => MedCategory.fromJson(snapshot),
-        toFirestore: (category, _) => category.toJson(),
+        fromFirestore: MedCategory.fromFirestore,
+        toFirestore: MedCategory.toFirestore,
       );
 
   addCategory(MedCategory category) async {
@@ -59,44 +59,31 @@ class Repository with ChangeNotifier {
   }
 
   Query<MedCompany> getCompaniesQuery() => _firestore.collection('companies').orderBy('name').withConverter(
-        fromFirestore: (snapshot, _) => MedCompany.fromJson(snapshot),
-        toFirestore: (company, _) => company.toJson(),
+        fromFirestore: MedCompany.fromFirestore,
+        toFirestore: MedCompany.toFirestore,
       );
 
   addCompany(MedCompany company) async {
-    await _firestore.collection('companies').add({
-      'name': company.name,
-    });
+    await _firestore.collection('companies').add(company.toJson());
   }
 
   addMed(Med med) async {
-    await _firestore.collection('meds').add(med.toJson());
+    if (med.id.isEmpty) {
+      await _firestore.collection('meds').add(med.toJson());
+    } else {
+      await _firestore.collection('meds').doc(med.id).update(med.toJson());
+    }
   }
 
-  addToStorage(Med med, int count) async {
-    final medRef = _firestore.collection('meds').doc(med.id);
-
-    final oldItem = await _firestore
-        .collection('storage')
-        .withConverter(
-          fromFirestore: (snapshot, _) => StorageItem.fromJson(snapshot),
-          toFirestore: (storageItem, _) => storageItem.toJson(),
-        )
-        .where('med', isEqualTo: medRef)
-        .limit(1)
-        .get();
-
-    if (oldItem.size == 0) {
-      await _firestore.collection('storage').add({
-        'med': medRef,
-        'count': count,
-      });
-    } else {
-      final storageItem = oldItem.docs[0].data();
-
-      await _firestore.collection('storage').doc(oldItem.docs[0].id).update({
-        'count': storageItem.count + count,
-      });
-    }
+  addToStorage(
+    Med med,
+    int count,
+    Timestamp expirationDate,
+  ) async {
+    await _firestore.collection('storage').add({
+      'med': _firestore.collection('med').doc(med.id),
+      'count': count,
+      'expirationDate': expirationDate,
+    });
   }
 }

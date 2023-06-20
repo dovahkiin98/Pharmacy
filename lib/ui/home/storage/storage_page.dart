@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmacy/model/med.dart';
 import 'package:pharmacy/model/storage_item.dart';
@@ -66,6 +67,7 @@ class _StoragePageState extends State<_StoragePage> {
               controller.addToStorage(
                 value['med'] as Med,
                 value['count'] as int,
+                value['expirationDate'] as Timestamp,
               );
             }
           });
@@ -76,11 +78,15 @@ class _StoragePageState extends State<_StoragePage> {
     );
   }
 
-  void _addStorageItem(Med med, int count) {
+  void _addStorageItem(
+    Med med,
+    int count,
+    Timestamp expirationDate,
+  ) {
     showDialog(
       context: context,
       builder: (_) => LoadingDialog(
-        future: controller.addToStorage(med, count),
+        future: controller.addToStorage(med, count, expirationDate),
         message: 'Adding to storage',
       ),
     ).then((value) {

@@ -8,6 +8,7 @@ final theme = ThemeData(
   ),
   snackBarTheme: const SnackBarThemeData(
     behavior: SnackBarBehavior.floating,
+    showCloseIcon: true,
   ),
 );
 

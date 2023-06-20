@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pharmacy/model/storage_item.dart';
 import 'package:pharmacy/ui/home/storage/storage_controller.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ class StorageListItem extends StatelessWidget {
 
         return ListTile(
           title: title,
+          subtitle: Text('Expires : ${DateFormat('dd-MM-yyyy').format(storageItem.expirationDate)}'),
           trailing: Text(storageItem.count.toString()),
         );
       },

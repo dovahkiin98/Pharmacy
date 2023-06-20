@@ -11,7 +11,7 @@ class MedCategory {
     required this.description,
   });
 
-  factory MedCategory.fromJson(DocumentSnapshot snapshot) {
+  static FromFirestore<MedCategory> fromFirestore = (snapshot, _) {
     final data = snapshot.data() as Map<String, dynamic>;
 
     return MedCategory(
@@ -19,7 +19,9 @@ class MedCategory {
       name: data['name'] ?? '',
       description: data['description'] ?? '',
     );
-  }
+  };
+
+  static ToFirestore<MedCategory> toFirestore = (category, _) => category.toJson();
 
   Map<String, dynamic> toJson() => {
         'name': name,

@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:pharmacy/model/company.dart';
+import 'package:pharmacy/model/category.dart';
 
-class AddCompanyDialog extends StatefulWidget {
-  const AddCompanyDialog({super.key});
+class AddCategoryDialog extends StatefulWidget {
+  const AddCategoryDialog({super.key});
 
   @override
-  State<AddCompanyDialog> createState() => _AddCompanyDialogState();
+  State<AddCategoryDialog> createState() => _AddCategoryDialogState();
 }
 
-class _AddCompanyDialogState extends State<AddCompanyDialog> {
+class _AddCategoryDialogState extends State<AddCategoryDialog> {
   final nameController = TextEditingController();
+
+  final descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final viewPadding = MediaQuery.viewPaddingOf(context).copyWith(
+      top: 0,
+    );
+
     return BottomSheet(
       builder: (context) {
         return ListView(
           shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(
+          padding: viewPadding + const EdgeInsets.symmetric(
             vertical: 24,
             horizontal: 26,
           ),
           children: [
             Text(
-              'Add Company',
+              'Add Category',
               style: Theme.of(context).textTheme.titleLarge!,
             ),
             const SizedBox(height: 24),
@@ -32,9 +38,19 @@ class _AddCompanyDialogState extends State<AddCompanyDialog> {
               onChanged: (_) {
                 setState(() {});
               },
+              textCapitalization: TextCapitalization.words,
               decoration: const InputDecoration(
                 labelText: 'Name',
                 hintText: 'Name',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: descriptionController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                hintText: 'Description',
               ),
             ),
             const SizedBox(height: 24),
@@ -43,14 +59,15 @@ class _AddCompanyDialogState extends State<AddCompanyDialog> {
                   ? () {
                       Navigator.pop(
                         context,
-                        MedCompany(
+                        MedCategory(
                           id: '',
                           name: nameController.text.trim(),
+                          description: descriptionController.text.trim(),
                         ),
                       );
                     }
                   : null,
-              child: const Text('Add Company'),
+              child: const Text('Add Category'),
             ),
             const SizedBox(height: 24),
           ],

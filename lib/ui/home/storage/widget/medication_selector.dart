@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmacy/model/med.dart';
-import 'package:pharmacy/ui/home/database/widget/med_item.dart';
+import 'package:pharmacy/ui/home/database/medication/med_item.dart';
 import 'package:pharmacy/ui/home/storage/storage_controller.dart';
 import 'package:pharmacy/widget/error_view.dart';
 import 'package:provider/provider.dart';

@@ -9,14 +9,16 @@ class MedCompany {
     required this.name,
   });
 
-  factory MedCompany.fromJson(DocumentSnapshot snapshot) {
+  static FromFirestore<MedCompany> fromFirestore = (snapshot, _) {
     final data = snapshot.data() as Map<String, dynamic>;
 
     return MedCompany(
       id: snapshot.id,
       name: data['name'] ?? '',
     );
-  }
+  };
+
+  static ToFirestore<MedCompany> toFirestore = (company, _) => company.toJson();
 
   Map<String, dynamic> toJson() => {
         'name': name,

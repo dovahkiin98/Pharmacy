@@ -26,7 +26,7 @@ class HomeContainer extends StatelessWidget {
       drawer: buildDrawer(context),
       body: Navigator(
         key: scaffoldController.navigatorKey,
-        initialRoute: HomeRoutes.DASHBOARD,
+        initialRoute: HomeRoutes.DATABASE,
         onGenerateRoute: HomeRoutes.onGenerateRoute,
         observers: [scaffoldController],
       ),

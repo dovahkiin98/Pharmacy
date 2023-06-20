@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pharmacy/app.dart';
 import 'package:pharmacy/model/category.dart';
 import 'package:pharmacy/model/company.dart';
+import 'package:pharmacy/model/med.dart';
 import 'package:pharmacy/ui/add_med/add_med_controller.dart';
 import 'package:pharmacy/ui/add_med/widget/company_selector.dart';
 import 'package:pharmacy/utils/utils.dart';
@@ -11,15 +14,18 @@ import 'package:provider/provider.dart';
 import 'widget/category_selector.dart';
 
 class AddMedPage extends StatelessWidget {
-  const AddMedPage({super.key});
+  final Med? med;
+
+  const AddMedPage({
+    this.med,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => AddMedController(context),
-      builder: (context, child) {
-        return _AddMedPage();
-      },
+      create: (context) => AddMedController(context, med: med),
+      builder: (context, child) => _AddMedPage(),
     );
   }
 }
@@ -32,8 +38,9 @@ class _AddMedPage extends StatefulWidget {
 class _AddMedPageState extends State<_AddMedPage> {
   late final controller = context.watch<AddMedController>();
 
-  final categoryTextController = TextEditingController();
-  final companyTextController = TextEditingController();
+  late final categoryTextController = controller.categoryTextController;
+  late final companyTextController = controller.companyTextController;
+  late final barcodeTextController = controller.barcodeTextController;
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +53,22 @@ class _AddMedPageState extends State<_AddMedPage> {
       body: ListView(
         padding: viewPadding + const EdgeInsets.all(16),
         children: [
-          TextField(
+          TextFormField(
+            initialValue: controller.med.name,
             onChanged: (text) {
               controller.updateMed(
                 (med) => med.copyWith(name: text),
               );
             },
+            textCapitalization: TextCapitalization.words,
             decoration: const InputDecoration(
               hintText: 'Name',
               labelText: 'Name',
             ),
           ),
           const SizedBox(height: 16),
-          TextField(
+          TextFormField(
+            initialValue: controller.med.description,
             maxLines: 3,
             onChanged: (text) {
               controller.updateMed(
@@ -68,6 +78,47 @@ class _AddMedPageState extends State<_AddMedPage> {
             decoration: const InputDecoration(
               hintText: 'Description',
               labelText: 'Description',
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            initialValue: controller.med.price.toStringAsFixed(0),
+            onChanged: (text) {
+              controller.updateMed(
+                (med) => med.copyWith(price: double.parse(text)),
+              );
+            },
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: const InputDecoration(
+              hintText: 'Price',
+              labelText: 'Price',
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: barcodeTextController,
+            maxLength: 13,
+            decoration: InputDecoration(
+              hintText: 'Barcode',
+              labelText: 'Barcode',
+              suffixIcon: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(
+                    Routes.SCANNER,
+                    arguments: {
+                      'exitOnScan': true,
+                    },
+                  ).then((value) {
+                    if (value is String) {
+                      controller.updateMed((med) => med.copyWith(barcode: value));
+                      barcodeTextController.text = value;
+                    }
+                  });
+                },
+                tooltip: "Scan Barcode",
+                icon: const Icon(Icons.barcode_reader),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -126,12 +177,8 @@ class _AddMedPageState extends State<_AddMedPage> {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-            onPressed: _validateInput()
-                ? () {
-                    _addMed();
-                  }
-                : null,
-            child: const Text('Add Medication'),
+            onPressed: _validateInput() ? _addMed : null,
+            child: Text(!controller.isUpdate ? 'Add Medication' : 'Update Medication'),
           ),
         ],
       ),
@@ -149,7 +196,7 @@ class _AddMedPageState extends State<_AddMedPage> {
       context: context,
       builder: (_) => LoadingDialog(
         future: controller.addMed(),
-        message: 'Adding Medication',
+        message: !controller.isUpdate ? 'Adding Medication' : 'Updating Medication',
       ),
     ).then((value) {
       if (value is Exception || value is Error) {
@@ -157,8 +204,8 @@ class _AddMedPageState extends State<_AddMedPage> {
           content: Text(getErrorText(value)),
         ));
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Medication added'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(!controller.isUpdate ? 'Medication added' : 'Medication Updated'),
         ));
 
         Navigator.of(context).pop();
