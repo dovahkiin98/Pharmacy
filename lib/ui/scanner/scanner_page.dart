@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScannerPage extends StatefulWidget {
@@ -16,7 +15,15 @@ class ScannerPage extends StatefulWidget {
 }
 
 class _ScannerPageState extends State<ScannerPage> {
-  final MobileScannerController scannerController = MobileScannerController();
+  final scannerController = MobileScannerController();
+  final player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+
+    player.setAsset('assets/mp3/beep.mp3');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,20 +37,33 @@ class _ScannerPageState extends State<ScannerPage> {
         onDetect: (capture) {
           final List<Barcode> barcodes = capture.barcodes;
 
-          for (final barcode in barcodes) {
-            debugPrint('Barcode found! ${barcode.rawValue}');
-          }
-
           if (barcodes.isNotEmpty) {
             final barcode = barcodes[0];
 
-            if (barcode.rawValue != null && widget.exitOnScan) {
+            if (barcode.rawValue != null && barcode.format == BarcodeFormat.ean13) {
               scannerController.stop();
-              Navigator.pop(context, barcodes[0].displayValue);
+
+              player.play();
+
+              if (widget.exitOnScan) {
+                Navigator.pop(context, barcodes[0].displayValue);
+              } else {
+                Future.delayed(const Duration(seconds: 5)).then((value) {
+                  scannerController.start();
+                });
+              }
             }
           }
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    scannerController.dispose();
+    player.dispose();
   }
 }

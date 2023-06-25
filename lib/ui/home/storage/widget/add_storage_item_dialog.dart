@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pharmacy/app.dart';
-import 'package:pharmacy/data/repository.dart';
 import 'package:pharmacy/model/med.dart';
 import 'package:pharmacy/ui/home/storage/storage_controller.dart';
 import 'package:pharmacy/ui/home/storage/widget/medication_selector.dart';
@@ -17,20 +16,18 @@ class AddStorageItemDialog extends StatefulWidget {
 }
 
 class _AddStorageItemDialogState extends State<AddStorageItemDialog> {
-  late final _repository = context.read<Repository>();
+  late final controller = context.read<StorageController>();
 
   final medTextController = TextEditingController();
-  final countTextController = TextEditingController(text: '1');
+  final amountTextController = TextEditingController(text: '1');
   final expirationDateTextController = TextEditingController();
 
   Med? med;
-  int count = 1;
+  int amount = 1;
   Timestamp? expirationDate;
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.read<StorageController>();
-
     return BottomSheet(
       builder: (context) {
         return ListView(
@@ -76,11 +73,11 @@ class _AddStorageItemDialogState extends State<AddStorageItemDialog> {
             ),
             const SizedBox(height: 16),
             TextFormField(
-              controller: countTextController,
+              controller: amountTextController,
               keyboardType: TextInputType.number,
               onChanged: (text) {
                 setState(() {
-                  count = int.parse(text);
+                  amount = int.parse(text);
                 });
               },
               inputFormatters: [
@@ -88,34 +85,34 @@ class _AddStorageItemDialogState extends State<AddStorageItemDialog> {
                 LengthLimitingTextInputFormatter(2),
               ],
               decoration: InputDecoration(
-                labelText: 'Count',
-                hintText: 'Count',
+                labelText: 'Amount',
+                hintText: 'Amount',
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      onPressed: count > 1
-                          ? () {
-                              FocusScope.of(context).unfocus();
-                              setState(() {
-                                count--;
-                                countTextController.text = count.toString();
-                              });
-                            }
-                          : null,
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                    ),
-                    IconButton(
                       onPressed: () {
                         setState(() {
-                          count++;
-                          countTextController.text = count.toString();
-                          countTextController.selection = TextSelection.fromPosition(
-                            TextPosition(offset: count.toString().length),
+                          amount++;
+                          amountTextController.text = amount.toString();
+                          amountTextController.selection = TextSelection.fromPosition(
+                            TextPosition(offset: amount.toString().length),
                           );
                         });
                       },
                       icon: const Icon(Icons.keyboard_arrow_up),
+                    ),
+                    IconButton(
+                      onPressed: amount > 1
+                          ? () {
+                              FocusScope.of(context).unfocus();
+                              setState(() {
+                                amount--;
+                                amountTextController.text = amount.toString();
+                              });
+                            }
+                          : null,
+                      icon: const Icon(Icons.keyboard_arrow_down),
                     ),
                   ],
                 ),
@@ -154,7 +151,7 @@ class _AddStorageItemDialogState extends State<AddStorageItemDialog> {
                         context,
                         {
                           'med': med,
-                          'count': count,
+                          'amount': amount,
                           'expirationDate': expirationDate,
                         },
                       );
@@ -179,7 +176,13 @@ class _AddStorageItemDialogState extends State<AddStorageItemDialog> {
     );
 
     if (barcodeValue is String) {
-      final medQuery = await _repository.getMedsQuery().where('barcode', isEqualTo: barcodeValue).get();
+      final medQuery = await controller
+          .getMedsQuery()
+          .where(
+            'barcode',
+            isEqualTo: barcodeValue,
+          )
+          .get();
 
       if (medQuery.size > 0) {
         setState(() {

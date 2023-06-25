@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'home_container.dart';
 
@@ -8,7 +9,12 @@ class HomeContainerController extends NavigatorObserver with ChangeNotifier {
 
   static const String _initialRoute = HomeRoutes.DASHBOARD;
 
-  HomeContainerController(BuildContext context);
+  HomeContainerController(BuildContext context) {
+    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestPermission();
+  }
 
   String currentRoute = _initialRoute;
 
@@ -57,6 +63,13 @@ class HomeContainerController extends NavigatorObserver with ChangeNotifier {
       currentRoute = previousRoute.settings.name!;
 
       notifyListeners();
+    }
+  }
+
+  @override
+  void notifyListeners() {
+    if (hasListeners) {
+      super.notifyListeners();
     }
   }
 }

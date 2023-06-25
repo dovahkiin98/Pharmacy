@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pharmacy/ui/home/payments/payments_page.dart';
 import 'package:provider/provider.dart';
 
 import 'dashboard/dashboard_page.dart';
@@ -19,14 +20,14 @@ class HomeContainer extends StatelessWidget {
   }
 
   Widget buildLayout(BuildContext context) {
-    final scaffoldController = context.watch<HomeContainerController>();
+    final scaffoldController = context.read<HomeContainerController>();
 
     return Scaffold(
       key: scaffoldController.scaffoldKey,
       drawer: buildDrawer(context),
       body: Navigator(
         key: scaffoldController.navigatorKey,
-        initialRoute: HomeRoutes.DATABASE,
+        initialRoute: HomeRoutes.DASHBOARD,
         onGenerateRoute: HomeRoutes.onGenerateRoute,
         observers: [scaffoldController],
       ),
@@ -71,10 +72,17 @@ class HomeContainer extends StatelessWidget {
             },
           ),
           ListTile(
-            title: Text('Storage'),
+            title: const Text('Storage'),
             selected: currentPage == HomeRoutes.STORAGE,
             onTap: () {
               scaffoldController.navigateDrawer(HomeRoutes.STORAGE);
+            },
+          ),
+          ListTile(
+            title: const Text('Payments'),
+            selected: currentPage == HomeRoutes.PAYMENTS,
+            onTap: () {
+              scaffoldController.navigateDrawer(HomeRoutes.PAYMENTS);
             },
           ),
         ],
@@ -87,11 +95,13 @@ class HomeRoutes {
   static const DASHBOARD = 'dashboard';
   static const DATABASE = 'database';
   static const STORAGE = 'storage';
+  static const PAYMENTS = 'payments';
 
   static final routes = {
     DASHBOARD: const DashboardPage(),
     DATABASE: const DatabasePage(),
     STORAGE: const StoragePage(),
+    PAYMENTS: const PaymentsPage(),
   };
 
   static Route<dynamic>? onGenerateRoute(RouteSettings routeSettings) {

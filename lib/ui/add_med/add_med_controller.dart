@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 class AddMedController extends ChangeNotifier {
   final Repository _repository;
 
+  final priceTextController = TextEditingController();
   final categoryTextController = TextEditingController();
   final companyTextController = TextEditingController();
   final barcodeTextController = TextEditingController();
@@ -26,6 +27,8 @@ class AddMedController extends ChangeNotifier {
       this.med = med;
 
       Future.sync(() async {
+        priceTextController.text = med.price.toStringAsFixed(0);
+
         categoryTextController.text = (await med.categoryRef!
                     .withConverter(
                       fromFirestore: MedCategory.fromFirestore,

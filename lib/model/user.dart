@@ -1,30 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MedCompany {
+class User {
   final String id;
   final String name;
-  final int quality;
 
-  MedCompany({
+  User({
     required this.id,
     required this.name,
-    required this.quality,
   });
 
-  static FromFirestore<MedCompany> fromFirestore = (snapshot, _) {
+  static FromFirestore<User> fromFirestore = (snapshot, _) {
     final data = snapshot.data() as Map<String, dynamic>;
 
-    return MedCompany(
+    return User(
       id: snapshot.id,
       name: data['name'] ?? '',
-      quality: data['quality'] ?? 1,
     );
   };
 
-  static ToFirestore<MedCompany> toFirestore = (company, _) => company.toJson();
+  static ToFirestore<User> toFirestore = (category, _) => category.toJson();
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'quality': quality,
       };
 }

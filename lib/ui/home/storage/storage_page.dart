@@ -64,9 +64,9 @@ class _StoragePageState extends State<_StoragePage> {
             ),
           ).then((value) {
             if (value is Map<String, dynamic>) {
-              controller.addToStorage(
+              _addStorageItem(
                 value['med'] as Med,
-                value['count'] as int,
+                value['amount'] as int,
                 value['expirationDate'] as Timestamp,
               );
             }
@@ -80,13 +80,13 @@ class _StoragePageState extends State<_StoragePage> {
 
   void _addStorageItem(
     Med med,
-    int count,
+    int amount,
     Timestamp expirationDate,
   ) {
     showDialog(
       context: context,
       builder: (_) => LoadingDialog(
-        future: controller.addToStorage(med, count, expirationDate),
+        future: controller.addToStorage(med, amount, expirationDate),
         message: 'Adding to storage',
       ),
     ).then((value) {

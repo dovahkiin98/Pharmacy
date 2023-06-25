@@ -54,7 +54,7 @@ class _MedicationSelectorState extends State<MedicationSelector> {
       children: [
         if (meds != null)
           ...meds!.map((e) {
-            return MedItem(
+            return MedListTile(
               e,
               onTap: () {
                 Navigator.of(context).pop(e);

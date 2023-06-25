@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pharmacy/model/med.dart';
+import 'package:pharmacy/utils/constants.dart';
 
-class MedItem extends StatelessWidget {
+class MedListTile extends StatelessWidget {
   final Med med;
   final VoidCallback? onTap;
 
-  const MedItem(
+  const MedListTile(
     this.med, {
     super.key,
     this.onTap,
@@ -16,18 +16,15 @@ class MedItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(med.name),
-      subtitle: Text(
-        med.description,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
+      subtitle: med.description.isNotEmpty
+          ? Text(
+              med.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            )
+          : null,
       isThreeLine: med.description.isNotEmpty,
-      trailing: Text(NumberFormat.currency(
-        locale: 'en',
-        symbol: 'SYP',
-        decimalDigits: 0,
-        customPattern: '###,### \u00A4',
-      ).format(med.price)),
+      trailing: Text(getCurrencyFormat().format(med.price)),
       onTap: onTap,
     );
   }

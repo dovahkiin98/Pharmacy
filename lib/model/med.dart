@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Med {
+  final DocumentReference? reference;
   final String id;
   final String name;
   final double price;
@@ -10,13 +11,14 @@ class Med {
   final DocumentReference? companyRef;
 
   Med({
+    this.reference,
     required this.id,
     required this.name,
     required this.description,
     required this.price,
     required this.barcode,
-    required this.categoryRef,
-    required this.companyRef,
+    this.categoryRef,
+    this.companyRef,
   });
 
   Med.empty()
@@ -26,14 +28,13 @@ class Med {
           description: '',
           price: 0.0,
           barcode: '',
-          categoryRef: null,
-          companyRef: null,
         );
 
-  factory Med.fromJson(DocumentSnapshot snapshot) {
+  static FromFirestore<Med> fromFirestore = (snapshot, _) {
     final data = snapshot.data() as Map<String, dynamic>;
 
     return Med(
+      reference: snapshot.reference,
       id: snapshot.id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
@@ -42,11 +43,13 @@ class Med {
       categoryRef: data['category'] as DocumentReference?,
       companyRef: data['company'] as DocumentReference?,
     );
-  }
+  };
+
+  static ToFirestore<Med> toFirestore = (med, _) => med.toJson();
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
+        'name': name.trim(),
+        'description': description.trim(),
         'price': price,
         'barcode': barcode,
         'category': categoryRef,

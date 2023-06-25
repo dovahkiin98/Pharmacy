@@ -33,6 +33,9 @@ class CustomFirestoreListView<Document> extends StatelessWidget {
           child: CircularProgressIndicator(),
         );
       },
+      emptyBuilder: (context) {
+        return const Center(child: Text('Empty'));
+      },
       padding: padding,
       physics: physics,
       shrinkWrap: shrinkWrap,

@@ -3,13 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class StorageItem {
   final String id;
   final DocumentReference medRef;
-  final int count;
+  final int amount;
   final DateTime expirationDate;
 
   StorageItem({
     required this.id,
     required this.medRef,
-    required this.count,
+    required this.amount,
     required this.expirationDate,
   });
 
@@ -19,7 +19,7 @@ class StorageItem {
     return StorageItem(
       id: snapshot.id,
       medRef: data['med'] as DocumentReference,
-      count: data['count'] as int,
+      amount: (data['amount'] as int?) ?? (data['count'] as int?) ?? 1,
       expirationDate: (data['expirationDate'] as Timestamp).toDate(),
     );
   };
@@ -28,7 +28,7 @@ class StorageItem {
 
   Map<String, dynamic> toJson() => {
         'med': medRef,
-        'count': count,
+        'amount': amount,
         'expirationDate': Timestamp.fromDate(expirationDate),
       };
 }

@@ -38,6 +38,7 @@ class _AddMedPage extends StatefulWidget {
 class _AddMedPageState extends State<_AddMedPage> {
   late final controller = context.watch<AddMedController>();
 
+  late final priceTextController = controller.priceTextController;
   late final categoryTextController = controller.categoryTextController;
   late final companyTextController = controller.companyTextController;
   late final barcodeTextController = controller.barcodeTextController;
@@ -81,18 +82,28 @@ class _AddMedPageState extends State<_AddMedPage> {
             ),
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            initialValue: controller.med.price.toStringAsFixed(0),
-            onChanged: (text) {
-              controller.updateMed(
-                (med) => med.copyWith(price: double.parse(text)),
-              );
+          Focus(
+            onFocusChange: (isFocused) {
+              if (isFocused) {
+                priceTextController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: priceTextController.text.length,
+                );
+              }
             },
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(
-              hintText: 'Price',
-              labelText: 'Price',
+            child: TextFormField(
+              controller: priceTextController,
+              onChanged: (text) {
+                controller.updateMed(
+                  (med) => med.copyWith(price: double.tryParse(text) ?? 0),
+                );
+              },
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                hintText: 'Price',
+                labelText: 'Price',
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -112,7 +123,7 @@ class _AddMedPageState extends State<_AddMedPage> {
                   ).then((value) {
                     if (value is String) {
                       controller.updateMed((med) => med.copyWith(barcode: value));
-                      barcodeTextController.text = value;
+                      barcodeTextController.text = value.trim();
                     }
                   });
                 },

@@ -17,14 +17,16 @@ class CompaniesPage extends StatelessWidget {
 
     return Scaffold(
       body: CustomFirestoreListView(
-        query: controller.getCategoriesQuery(),
+        query: controller.getCompaniesQuery(),
         itemBuilder: (context, doc) {
-          final category = doc.data();
+          final company = doc.data();
 
           return ListTile(
-            title: Text(category.name),
-            subtitle: Text(category.description),
-            isThreeLine: category.description.isNotEmpty,
+            title: Text(company.name),
+            trailing: Text(
+              company.quality.toString(),
+              style: TextStyle(color: getQualityColor(company.quality)),
+            ),
           );
         },
       ),

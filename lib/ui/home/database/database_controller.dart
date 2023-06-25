@@ -23,6 +23,8 @@ class DatabaseController extends ChangeNotifier {
 
   Query<MedCompany> getCompaniesQuery() => _repository.getCompaniesQuery();
 
+  Stream<DocumentSnapshot<MedCompany>> getCompanyItemDoc(String id) => _repository.getCompanyItemDoc(id);
+
   Future addCompany(MedCompany company) async {
     await _repository.addCompany(company);
 
