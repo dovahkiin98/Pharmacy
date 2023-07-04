@@ -1,10 +1,7 @@
-import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pharmacy/data/repository.dart';
 import 'package:pharmacy/model/med.dart';
 import 'package:pharmacy/ui/home/database/medication/med_item.dart';
-import 'package:pharmacy/ui/home/storage/storage_controller.dart';
 import 'package:pharmacy/widget/error_view.dart';
 import 'package:provider/provider.dart';
 
@@ -19,28 +16,22 @@ class _MedicationSelectorState extends State<MedicationSelector> {
   List<Med>? meds;
   Object? _error;
 
-  StreamSubscription? _listener;
-
   @override
   void initState() {
     super.initState();
 
-    final controller = context.read<StorageController>();
-    _listener = controller.getMedsQuery().snapshots().listen(onMedsChanged)
-      ..onError(
-        (e) {
-          setState(() {
-            _error = e;
-          });
-        },
-      );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _listener?.cancel();
+    context.read<Repository>().getMedsQuery().get().then(
+      (meds) {
+        setState(() {
+          this.meds = meds.docs.map((e) => e.data()).toList(growable: false);
+        });
+      },
+      onError: (e) {
+        setState(() {
+          _error = e;
+        });
+      },
+    );
   }
 
   @override
@@ -69,11 +60,5 @@ class _MedicationSelectorState extends State<MedicationSelector> {
           ),
       ],
     );
-  }
-
-  void onMedsChanged(QuerySnapshot<Med> event) {
-    setState(() {
-      meds = event.docs.map((e) => e.data()).toList(growable: false);
-    });
   }
 }

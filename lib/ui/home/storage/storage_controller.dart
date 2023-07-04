@@ -8,13 +8,17 @@ import 'package:provider/provider.dart';
 class StorageController extends ChangeNotifier {
   final Repository _repository;
 
+  bool get isAdmin => _repository.isAdmin;
+
   StorageController(BuildContext context) : _repository = context.read();
 
-  Query<StorageItem> getStorageQuery() => _repository.getStorageQuery();
+  Query<StorageItem> getStorageQuery() {
+    final query = _repository.getStorageQuery();
 
-  Query<Med> getMedsQuery() => _repository.getMedsQuery();
+    return isAdmin ? query.orderBy('user') : query;
+  }
 
-  Stream<DocumentSnapshot<Med>> getMedItemDoc(String id) => _repository.getMedItemDoc(id);
+  Query<Med> getMedsQuery() => _repository.getMedsQuery().orderBy('name');
 
   Future addToStorage(
     Med med,
@@ -27,4 +31,6 @@ class StorageController extends ChangeNotifier {
       expirationDate,
     );
   }
+
+  Future removeFromStorage(StorageItem storageItem) => _repository.removeFromStorage(storageItem);
 }

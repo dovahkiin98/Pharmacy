@@ -58,9 +58,9 @@ class AddMedController extends ChangeNotifier {
     }
   }
 
-  Query<MedCategory> getCategoriesQuery() => _repository.getCategoriesQuery();
+  Query<MedCategory> getCategoriesQuery() => _repository.getCategoriesQuery().orderBy('name');
 
-  Query<MedCompany> getCompaniesQuery() => _repository.getCompaniesQuery();
+  Query<MedCompany> getCompaniesQuery() => _repository.getCompaniesQuery().orderBy('name');
 
   updateMed(Med Function(Med med) update) {
     med = update(med);

@@ -30,20 +30,22 @@ class CompaniesPage extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => const AddCompanyDialog(),
-          ).then((value) {
-            if (value is MedCompany) {
-              _addCompany(context, value);
-            }
-          });
-        },
-        label: const Text('Add Company'),
-        icon: const Icon(Icons.add),
-      ),
+      floatingActionButton: controller.isAdmin
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => const AddCompanyDialog(),
+                ).then((value) {
+                  if (value is MedCompany) {
+                    _addCompany(context, value);
+                  }
+                });
+              },
+              label: const Text('Add Company'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 

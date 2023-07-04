@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'category.dart';
+import 'company.dart';
+
 class Med {
-  final DocumentReference? reference;
+  final DocumentReference<Med>? reference;
   final String id;
   final String name;
   final double price;
   final String description;
   final String barcode;
-  final DocumentReference? categoryRef;
-  final DocumentReference? companyRef;
+  final DocumentReference<MedCategory>? categoryRef;
+  final DocumentReference<MedCompany>? companyRef;
 
   Med({
     this.reference,
@@ -34,14 +37,23 @@ class Med {
     final data = snapshot.data() as Map<String, dynamic>;
 
     return Med(
-      reference: snapshot.reference,
+      reference: snapshot.reference.withConverter(
+        fromFirestore: fromFirestore,
+        toFirestore: toFirestore,
+      ),
       id: snapshot.id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
-      price: double.tryParse(data['price'].toString()) ?? 0,
+      price: (data['price'] as num).toDouble(),
       barcode: data['barcode'] ?? '',
-      categoryRef: data['category'] as DocumentReference?,
-      companyRef: data['company'] as DocumentReference?,
+      categoryRef: (data['category'] as DocumentReference?)?.withConverter(
+        fromFirestore: MedCategory.fromFirestore,
+        toFirestore: MedCategory.toFirestore,
+      ),
+      companyRef: (data['company'] as DocumentReference?)?.withConverter(
+        fromFirestore: MedCompany.fromFirestore,
+        toFirestore: MedCompany.toFirestore,
+      ),
     );
   };
 
@@ -61,8 +73,8 @@ class Med {
     String? description,
     double? price,
     String? barcode,
-    DocumentReference? categoryRef,
-    DocumentReference? companyRef,
+    DocumentReference<MedCategory>? categoryRef,
+    DocumentReference<MedCompany>? companyRef,
   }) =>
       Med(
         id: id,

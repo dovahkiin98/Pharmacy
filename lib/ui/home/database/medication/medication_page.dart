@@ -36,9 +36,11 @@ class MedicationsPage extends StatelessWidget {
 
                 final medListTile = MedListTile(
                   currentMed,
-                  onTap: () {
-                    _showSheet(context, currentMed);
-                  },
+                  onTap: controller.isAdmin
+                      ? () {
+                          _showSheet(context, currentMed);
+                        }
+                      : null,
                 );
 
                 if (isDifferentCompany) {
@@ -78,16 +80,18 @@ class MedicationsPage extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(
-            context,
-            rootNavigator: true,
-          ).pushNamed(Routes.ADD_MED);
-        },
-        label: const Text('Add Medication'),
-        icon: const Icon(Icons.add),
-      ),
+      floatingActionButton: controller.isAdmin
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                  rootNavigator: true,
+                ).pushNamed(Routes.ADD_MED);
+              },
+              label: const Text('Add Medication'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
@@ -95,6 +99,8 @@ class MedicationsPage extends StatelessWidget {
     BuildContext context,
     Med med,
   ) {
+    final controller = context.read<DatabaseController>();
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -112,10 +118,6 @@ class MedicationsPage extends StatelessWidget {
                 leading: const Icon(Icons.edit),
                 onTap: () {
                   Navigator.pop(context, 0);
-                  Navigator.of(context, rootNavigator: true).pushNamed(
-                    Routes.ADD_MED,
-                    arguments: {'med': med},
-                  );
                 },
               ),
               ListTile(
@@ -129,6 +131,39 @@ class MedicationsPage extends StatelessWidget {
           ),
         );
       },
-    );
+    ).then((value) {
+      if (value == 0) {
+        Navigator.of(context).pushNamed(
+          Routes.ADD_MED,
+          arguments: {'med': med},
+        );
+      } else if (value == 1) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Delete Medication'),
+            content: const Text('Are you sure you want to delete this medication?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ).then((value) {
+          if (value == true) {
+            controller.deleteMed(med);
+          }
+        });
+      }
+    });
   }
 }

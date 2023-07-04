@@ -40,7 +40,7 @@ class _DashboardPageState extends State<_DashboardPage> {
         ),
       ),
       body: ListView(
-        padding: viewPadding + const EdgeInsets.all(16),
+        padding: viewPadding + const EdgeInsets.all(16) + const EdgeInsets.only(bottom: 64),
         children: [
           StreamBuilder(
             stream: controller.getExpired(),

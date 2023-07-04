@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:pharmacy/model/med.dart';
+import 'package:pharmacy/ui/home/storage/widget/medication_selector.dart';
 import 'package:pharmacy/ui/transaction/transaction_controller.dart';
 import 'package:pharmacy/utils/constants.dart';
+import 'package:pharmacy/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class TransactionPage extends StatelessWidget {
@@ -30,6 +34,7 @@ class _TransactionPageState extends State<_TransactionPage> {
   final buyerNameTextController = TextEditingController();
   final draggableController = DraggableScrollableController();
   final scannerController = MobileScannerController();
+
   final player = AudioPlayer();
 
   final currencyFormat = getCurrencyFormat();
@@ -42,7 +47,7 @@ class _TransactionPageState extends State<_TransactionPage> {
   void initState() {
     super.initState();
 
-    // player.setAsset('assets/mp3/beep.mp3');
+    player.loadManually('assets/mp3/beep.mp3');
   }
 
   @override
@@ -94,7 +99,8 @@ class _TransactionPageState extends State<_TransactionPage> {
                     final barcode = barcodes[0];
 
                     if (barcode.rawValue != null && barcode.format == BarcodeFormat.ean13) {
-                      // player.play();
+                      player.play();
+                      // player.play(AssetSource('assets/mp3/beep.mp3'));
 
                       controller.addByBarcode(barcode.rawValue!).onError((error, stackTrace) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -146,9 +152,25 @@ class _TransactionPageState extends State<_TransactionPage> {
                             ),
                           ),
                           const Divider(height: 4),
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => const MedicationSelector(),
+                                ).then((value) {
+                                  if (value is Med) {
+                                    _addMed(value.reference!);
+                                  }
+                                });
+                              },
+                              child: const Text('Add Manually'),
+                            ),
+                          ),
                           ...controller.items.map(
                             (e) => StreamBuilder(
-                              stream: controller.getMedItemDoc(e.medRef.id),
+                              stream: e.medRef.snapshots(),
                               builder: (context, snapshot) {
                                 Widget title;
 
@@ -168,11 +190,7 @@ class _TransactionPageState extends State<_TransactionPage> {
                                     children: [
                                       IconButton(
                                         onPressed: () {
-                                          controller.addMed(e.medRef).onError((error, stackTrace) {
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                              content: Text(error.toString()),
-                                            ));
-                                          });
+                                          _addMed(e.medRef);
                                         },
                                         tooltip: 'Add',
                                         icon: const Icon(Icons.add),
@@ -263,6 +281,14 @@ class _TransactionPageState extends State<_TransactionPage> {
           },
         );
       }
+    });
+  }
+
+  void _addMed(DocumentReference<Med> med) {
+    controller.addMed(med).onError((error, stackTrace) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(error.toString()),
+      ));
     });
   }
 

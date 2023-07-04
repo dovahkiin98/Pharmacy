@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:pharmacy/data/repository.dart';
+import 'package:provider/provider.dart';
 
 import 'home_container.dart';
 
 class HomeContainerController extends NavigatorObserver with ChangeNotifier {
+  final Repository _repository;
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final navigatorKey = GlobalKey<NavigatorState>();
 
   static const String _initialRoute = HomeRoutes.DASHBOARD;
 
-  HomeContainerController(BuildContext context) {
+  HomeContainerController(BuildContext context) : _repository = context.read() {
     final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
     flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.requestPermission();
@@ -19,6 +24,10 @@ class HomeContainerController extends NavigatorObserver with ChangeNotifier {
   String currentRoute = _initialRoute;
 
   NavigatorState get _navigatorState => navigatorKey.currentState!;
+
+  void logout() {
+    _repository.logout();
+  }
 
   void openDrawer() {
     scaffoldKey.currentState!.openDrawer();

@@ -1,4 +1,5 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmacy/app.dart';
 import 'package:pharmacy/utils/utils.dart';
@@ -29,6 +30,9 @@ class _LoginPageState extends State<_LoginPage> {
   late final controller = context.watch<LoginController>();
   bool showPassword = false;
 
+  late final emailTextController = controller.emailTextController;
+  late final passwordTextController = controller.passwordTextController;
+
   @override
   Widget build(BuildContext context) {
     final viewPadding = MediaQuery.viewPaddingOf(context);
@@ -38,16 +42,77 @@ class _LoginPageState extends State<_LoginPage> {
       body: ListView(
         padding: viewPadding + const EdgeInsets.all(16),
         children: [
-          const Text(
-            'Login',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
+          if (kDebugMode)
+            DefaultTabController(
+              length: 2,
+              child: TabBar(
+                tabs: const [
+                  Tab(text: 'Admin'),
+                  Tab(text: 'User'),
+                ],
+                onTap: (tab) {
+                  if (tab == 0) {
+                    emailTextController.text = 'admin@admin.com';
+                    passwordTextController.text = '12345678';
+                  } else if (tab == 1) {
+                    emailTextController.text = 'user@user.com';
+                    passwordTextController.text = '12345678';
+                  }
+                },
+              ),
+            ),
+          GestureDetector(
+            onLongPress: kDebugMode
+                ? () {
+              // Show a dialog to change Firebase IP without needing to rebuild the application.
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        final textController = TextEditingController(text: controller.getIP());
+
+                        return AlertDialog(
+                          title: const Text('Change IP'),
+                          content: TextField(
+                            controller: textController,
+                            decoration: const InputDecoration(
+                              hintText: 'Firebase IP',
+                              labelText: 'Firebase IP',
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(textController.text);
+                              },
+                              child: const Text('Update'),
+                            ),
+                          ],
+                        );
+                      },
+                    ).then((value) {
+                      if (value is String) {
+                        controller.updateIP(value);
+                      }
+                    });
+                  }
+                : null,
+            child: const Text(
+              'Login',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(height: 24),
           TextField(
-            controller: controller.emailTextController,
+            controller: emailTextController,
             decoration: const InputDecoration(
               hintText: 'Email',
               labelText: 'Email',
@@ -63,7 +128,7 @@ class _LoginPageState extends State<_LoginPage> {
           ),
           const SizedBox(height: 24),
           TextField(
-            controller: controller.passwordTextController,
+            controller: passwordTextController,
             decoration: InputDecoration(
               hintText: 'Password',
               labelText: 'Password',

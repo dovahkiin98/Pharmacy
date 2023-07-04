@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:pharmacy/model/user.dart';
-import 'package:pharmacy/utils/constants.dart';
+import 'package:pharmacy/app.dart';
+import 'package:pharmacy/model/payment.dart';
+import 'package:pharmacy/ui/home/payments/widget/payment_list_item.dart';
 import 'package:pharmacy/widget/custom_firestore_listview.dart';
 import 'package:provider/provider.dart';
 
@@ -36,101 +36,75 @@ class _PaymentsPageState extends State<_PaymentsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payments'),
+        leading: DrawerButton(
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+        ),
       ),
       body: CustomFirestoreListView(
         query: controller.getPaymentsQuery(),
-        padding: viewPadding + const EdgeInsets.all(16),
+        padding: viewPadding + const EdgeInsets.all(8),
         itemBuilder: (context, doc) {
           final payment = doc.data();
 
-          return Card(
-            clipBehavior: Clip.hardEdge,
-            child: InkWell(
-              onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Table(
-                  columnWidths: const {
-                    0: IntrinsicColumnWidth(),
-                    1: FlexColumnWidth(1),
-                  },
-                  children: [
-                    TableRow(children: [
-                      const Text(
-                        'Seller : ',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      StreamBuilder(
-                        stream: payment.sellerRef
-                            .withConverter(
-                              fromFirestore: User.fromFirestore,
-                              toFirestore: User.toFirestore,
-                            )
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          Widget title;
-
-                          if (snapshot.hasData && snapshot.data!.data() != null) {
-                            final user = snapshot.data!.data()!;
-
-                            title = Text(user.name);
-                          } else {
-                            title = const SizedBox();
-                          }
-
-                          return title;
-                        },
-                      ),
-                    ]),
-                    TableRow(
-                      children: [
-                        const Text(
-                          'Buyer : ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(payment.buyerName),
-                      ],
-                    ),
-                    TableRow(
-                      children: [
-                        const Text(
-                          'Date : ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(DateFormat('dd-MM-yyyy hh:mm a').format(payment.date)),
-                      ],
-                    ),
-                    TableRow(
-                      children: [
-                        const Text(
-                          'Total : ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        FutureBuilder(
-                          future: payment.items.count().get(),
-                          builder: (context, snapshot) {
-                            Widget title;
-
-                            if (snapshot.hasData) {
-                              final count = snapshot.data!.count;
-
-                              title = Text('${getCurrencyFormat().format(payment.total)} ($count) items');
-                            } else {
-                              title = const SizedBox();
-                            }
-
-                            return title;
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          return PaymentListItem(
+            payment,
+            onTap: () {
+              Navigator.of(context, rootNavigator: true).pushNamed(
+                Routes.PAYMENT_DETAILS,
+                arguments: {'payment': payment},
+              );
+            },
+            onLongPress: () {
+              _showSheet(payment);
+            },
           );
         },
       ),
     );
+  }
+
+  void _showSheet(Payment payment) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: MediaQuery.viewPaddingOf(context) +
+              const EdgeInsets.only(
+                bottom: 16,
+                top: 32,
+              ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('View Details'),
+                leading: const Icon(Icons.payment),
+                onTap: () {
+                  Navigator.pop(context, 0);
+                },
+              ),
+              ListTile(
+                title: const Text('Print Receipt'),
+                leading: const Icon(Icons.print),
+                onTap: () {
+                  Navigator.pop(context, 1);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((value) {
+      if (value == 0) {
+        Navigator.of(context, rootNavigator: true).pushNamed(
+          Routes.PAYMENT_DETAILS,
+          arguments: {'payment': payment},
+        );
+      } else if (value == 1) {
+        controller.printReceipt(payment);
+      }
+    });
   }
 }

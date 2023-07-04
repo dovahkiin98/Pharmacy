@@ -4,8 +4,8 @@ import 'package:pharmacy/model/med.dart';
 import 'package:pharmacy/model/storage_item.dart';
 import 'package:pharmacy/ui/home/storage/widget/add_storage_item_dialog.dart';
 import 'package:pharmacy/ui/home/storage/widget/storage_list_item.dart';
-import 'package:pharmacy/widget/custom_firestore_listview.dart';
 import 'package:pharmacy/utils/utils.dart';
+import 'package:pharmacy/widget/custom_firestore_listview.dart';
 import 'package:pharmacy/widget/loading_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -51,30 +51,37 @@ class _StoragePageState extends State<_StoragePage> {
         itemBuilder: (context, doc) {
           final storageItem = doc.data();
 
-          return StorageListItem(storageItem);
+          return InkWell(
+            onLongPress: () {
+              _showSheet(context, storageItem);
+            },
+            child: StorageListItem(storageItem),
+          );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (_) => ChangeNotifierProvider.value(
-              value: controller,
-              child: const AddStorageItemDialog(),
-            ),
-          ).then((value) {
-            if (value is Map<String, dynamic>) {
-              _addStorageItem(
-                value['med'] as Med,
-                value['amount'] as int,
-                value['expirationDate'] as Timestamp,
-              );
-            }
-          });
-        },
-        label: const Text('Add item to storage'),
-        icon: const Icon(Icons.add),
-      ),
+      floatingActionButton: !controller.isAdmin
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (_) => ChangeNotifierProvider.value(
+                    value: controller,
+                    child: const AddStorageItemDialog(),
+                  ),
+                ).then((value) {
+                  if (value is Map<String, dynamic>) {
+                    _addStorageItem(
+                      value['med'] as Med,
+                      value['amount'] as int,
+                      value['expirationDate'] as Timestamp,
+                    );
+                  }
+                });
+              },
+              label: const Text('Add item to storage'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
@@ -98,6 +105,72 @@ class _StoragePageState extends State<_StoragePage> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Added to storage'),
         ));
+      }
+    });
+  }
+
+  void _showSheet(
+    BuildContext context,
+    StorageItem storageItem,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: MediaQuery.viewPaddingOf(context) +
+              const EdgeInsets.only(
+                bottom: 16,
+                top: 32,
+              ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ListTile(
+              //   title: const Text('Edit'),
+              //   leading: const Icon(Icons.edit),
+              //   onTap: () {
+              //     Navigator.pop(context, 0);
+              //   },
+              // ),
+              ListTile(
+                title: const Text('Delete'),
+                leading: const Icon(Icons.delete),
+                onTap: () {
+                  Navigator.pop(context, 1);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((value) {
+      if (value == 0) {
+      } else if (value == 1) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Remove from storage'),
+            content: const Text('Are you sure you want to remove this item from storage?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ).then((value) {
+          if (value == true) {
+            controller.removeFromStorage(storageItem);
+          }
+        });
       }
     });
   }

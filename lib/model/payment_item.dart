@@ -12,6 +12,8 @@ class PaymentItem {
     required this.individualPrice,
   });
 
+  double get totalPrice => individualPrice * amount;
+
   PaymentItem copyWith({
     DocumentReference<Med>? medRef,
     int? amount,
@@ -32,12 +34,27 @@ class PaymentItem {
     }
   }
 
-  @override
-  int get hashCode => medRef.id.hashCode >> amount.hashCode >> individualPrice.hashCode;
+  static FromFirestore<PaymentItem> fromFirestore = (snapshot, _) {
+    final data = snapshot.data() as Map<String, dynamic>;
+
+    return PaymentItem(
+      amount: data['amount'],
+      medRef: (data['med'] as DocumentReference).withConverter(
+        fromFirestore: Med.fromFirestore,
+        toFirestore: Med.toFirestore,
+      ),
+      individualPrice: (data['price'] as num).toDouble(),
+    );
+  };
+
+  static ToFirestore<PaymentItem> toFirestore = (paymentItem, _) => paymentItem.toJson();
 
   Map<String, dynamic> toJson() => {
         'med': medRef,
         'amount': amount,
         'price': individualPrice,
       };
+
+  @override
+  int get hashCode => medRef.id.hashCode >> amount.hashCode >> individualPrice.hashCode;
 }

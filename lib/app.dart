@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pharmacy/model/payment.dart';
+import 'package:pharmacy/ui/payment/payment_details_page.dart';
 import 'package:pharmacy/ui/scanner/scanner_page.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +36,7 @@ class Routes {
   static const SCANNER = 'scanner';
   static const ADD_MED = 'add_med';
   static const TRANSACTION = 'transaction';
+  static const PAYMENT_DETAILS = 'payment';
 
   /// Constant routes that require no parameters.
   static final routes = <String, Widget>{
@@ -57,6 +60,12 @@ class Routes {
       final med = routeSettings.getArgument<Med>('med');
 
       page = AddMedPage(med: med);
+    }
+
+    if(routeSettings.name == PAYMENT_DETAILS) {
+      final payment = routeSettings.getArgument<Payment>('payment')!;
+
+      page = PaymentDetailsPage(payment: payment);
     }
 
     page ??= routes[routeSettings.name];

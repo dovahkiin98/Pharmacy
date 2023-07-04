@@ -41,4 +41,10 @@ class LoginController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void updateIP(String ip) {
+    _repository.updateIP(ip);
+  }
+
+  String getIP() => _repository.ip;
 }

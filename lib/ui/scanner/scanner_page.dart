@@ -1,6 +1,8 @@
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:pharmacy/utils/utils.dart';
 
 class ScannerPage extends StatefulWidget {
   final bool exitOnScan;
@@ -22,7 +24,7 @@ class _ScannerPageState extends State<ScannerPage> {
   void initState() {
     super.initState();
 
-    player.setAsset('assets/mp3/beep.mp3');
+    player.loadManually('assets/mp3/beep.mp3');
   }
 
   @override
@@ -44,6 +46,7 @@ class _ScannerPageState extends State<ScannerPage> {
               scannerController.stop();
 
               player.play();
+              // player.play(AssetSource('assets/mp3/beep.mp3'));
 
               if (widget.exitOnScan) {
                 Navigator.pop(context, barcodes[0].displayValue);

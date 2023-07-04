@@ -10,9 +10,6 @@ import 'app.dart';
 import 'data/repository.dart';
 import 'notifications.dart';
 
-/// Firebase Emulator IP (Local IP)
-const FIREBASE_IP = "192.168.1.105";
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -25,12 +22,16 @@ void main() async {
 
   // Forcing the application to run in only Portrait mode.
   await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitDown,
     DeviceOrientation.portraitUp,
   ]);
   //endregion
 
+  // Initialize a SharedPreference instance before application starts.
+  final prefs = await SharedPreferences.getInstance();
+
   //region Firebase Init
+  final firebaseIP = prefs.getString('ip') ?? Repository.FIREBASE_IP;
+
   // Initializing the Firebase app with dummy information.
   await Firebase.initializeApp(
     options: const FirebaseOptions(
@@ -45,19 +46,16 @@ void main() async {
 
   if (USE_EMULATOR) {
     // Initializing Firestore with the Firebase Emulator IP.
-    FirebaseFirestore.instance.settings = const Settings(
-      host: '$FIREBASE_IP:8080',
+    FirebaseFirestore.instance.settings = Settings(
+      host: '$firebaseIP:8080',
       sslEnabled: false,
       persistenceEnabled: true,
     );
 
     // Initializing Firebase Auth with the Firebase Emulator IP.
-    await FirebaseAuth.instance.useAuthEmulator(FIREBASE_IP, 9099);
+    await FirebaseAuth.instance.useAuthEmulator(firebaseIP, 9099);
   }
   //endregion
-
-  // Initialize a SharedPreference instance before application starts.
-  final prefs = await SharedPreferences.getInstance();
 
   await initNotifications();
 

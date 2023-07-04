@@ -9,11 +9,15 @@ import 'package:provider/provider.dart';
 class DatabaseController extends ChangeNotifier {
   final Repository _repository;
 
+  bool get isAdmin => _repository.isAdmin;
+
   DatabaseController(BuildContext context) : _repository = context.read();
 
-  Query<Med> getMedsQuery() => _repository.getMedsQuery();
+  Query<Med> getMedsQuery() => _repository.getMedsQuery().orderBy('name');
 
-  Query<MedCategory> getCategoriesQuery() => _repository.getCategoriesQuery();
+  Future deleteMed(Med med) => _repository.deleteMed(med);
+
+  Query<MedCategory> getCategoriesQuery() => _repository.getCategoriesQuery().orderBy('name');
 
   Future addCategory(MedCategory category) async {
     await _repository.addCategory(category);
@@ -21,7 +25,7 @@ class DatabaseController extends ChangeNotifier {
     return true;
   }
 
-  Query<MedCompany> getCompaniesQuery() => _repository.getCompaniesQuery();
+  Query<MedCompany> getCompaniesQuery() => _repository.getCompaniesQuery().orderBy('name');
 
   Stream<DocumentSnapshot<MedCompany>> getCompanyItemDoc(String id) => _repository.getCompanyItemDoc(id);
 

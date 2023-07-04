@@ -28,20 +28,22 @@ class CategoriesPage extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) => const AddCategoryDialog(),
-          ).then((value) {
-            if (value is MedCategory) {
-              _addCategory(context, value);
-            }
-          });
-        },
-        label: const Text('Add Category'),
-        icon: const Icon(Icons.add),
-      ),
+      floatingActionButton: controller.isAdmin
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => const AddCategoryDialog(),
+                ).then((value) {
+                  if (value is MedCategory) {
+                    _addCategory(context, value);
+                  }
+                });
+              },
+              label: const Text('Add Category'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 

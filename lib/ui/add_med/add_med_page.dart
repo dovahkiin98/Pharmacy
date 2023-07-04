@@ -150,9 +150,7 @@ class _AddMedPageState extends State<_AddMedPage> {
               ).then((value) {
                 if (value is MedCategory) {
                   controller.updateMed(
-                    (med) => med.copyWith(
-                      categoryRef: FirebaseFirestore.instance.collection('categories').doc(value.id),
-                    ),
+                    (med) => med.copyWith(categoryRef: value.reference),
                   );
                   categoryTextController.text = value.name;
                 }
@@ -177,9 +175,7 @@ class _AddMedPageState extends State<_AddMedPage> {
               ).then((value) {
                 if (value is MedCompany) {
                   controller.updateMed(
-                    (med) => med.copyWith(
-                      companyRef: FirebaseFirestore.instance.collection('companies').doc(value.id),
-                    ),
+                    (med) => med.copyWith(companyRef: value.reference),
                   );
                   companyTextController.text = value.name;
                 }

@@ -7,7 +7,11 @@ import 'package:provider/provider.dart';
 class PaymentsController extends ChangeNotifier {
   final Repository _repository;
 
+  bool get isAdmin => _repository.isAdmin;
+
   PaymentsController(BuildContext context) : _repository = context.read();
 
   Query<Payment> getPaymentsQuery() => _repository.getPaymentsQuery();
+
+  Future printReceipt(Payment payment) => _repository.printPayment(payment);
 }

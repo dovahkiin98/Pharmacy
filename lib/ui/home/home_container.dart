@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pharmacy/app.dart';
 import 'package:pharmacy/ui/home/payments/payments_page.dart';
 import 'package:provider/provider.dart';
 
@@ -42,18 +43,33 @@ class HomeContainer extends StatelessWidget {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SvgPicture.asset(
-                  'assets/svg/ic_launcher.svg',
-                  width: 56,
-                  height: 56,
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/svg/ic_launcher.svg',
+                      width: 56,
+                      height: 56,
+                    ),
+                    const SizedBox(width: 16),
+                    const Text(
+                      'Pharmacy',
+                      style: TextStyle(fontSize: 30),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                const Text(
-                  'Pharmacy',
-                  style: TextStyle(fontSize: 30),
-                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    scaffoldController.logout();
+                    Navigator.of(context).popUntil((route) => false);
+                    Navigator.of(context).pushNamed(Routes.LOGIN);
+                  },
+                  child: const Text('Logout'),
+                )
               ],
             ),
           ),

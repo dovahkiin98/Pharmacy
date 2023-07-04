@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pharmacy/data/repository.dart';
 import 'package:pharmacy/model/med.dart';
@@ -9,9 +10,17 @@ class TransactionController extends ChangeNotifier {
   final Repository _repository;
   final items = <PaymentItem>[];
 
-  TransactionController(BuildContext context) : _repository = context.read();
+  TransactionController(BuildContext context) : _repository = context.read() {
+    if (kDebugMode) {
+      items.add(PaymentItem(
+        medRef: _repository.getMedItemDoc('ipeUBnuPmqvU8DUk2PoC'),
+        amount: 5,
+        individualPrice: 1600,
+      ));
+    }
+  }
 
-  Stream<DocumentSnapshot<Med>> getMedItemDoc(String id) => _repository.getMedItemDoc(id);
+  Stream<DocumentSnapshot<Med>> getMedItemDoc(String id) => _repository.getMedItemDoc(id).snapshots();
 
   Future addByBarcode(String barcode) async {
     final medQuery = await _repository.getMedsQuery().where('barcode', isEqualTo: barcode).get();
@@ -46,13 +55,13 @@ class TransactionController extends ChangeNotifier {
       final item = items.firstWhere((element) => element.medRef == medRef);
       final index = items.indexOf(item);
 
-      if(itemsInStock < item.amount + 1) {
+      if (itemsInStock < item.amount + 1) {
         throw 'Out of stock';
       }
 
       items[index] = item.copyWith(amount: item.amount + 1);
     } else {
-      if(itemsInStock == 0) {
+      if (itemsInStock == 0) {
         throw 'Out of stock';
       }
 
