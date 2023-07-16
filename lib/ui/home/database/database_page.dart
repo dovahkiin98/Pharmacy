@@ -40,23 +40,23 @@ class _DatabasePageState extends State<_DatabasePage> {
           },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentPage,
-        items: const [
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentPage,
+        destinations: const [
+          NavigationDestination(
             icon: Icon(Icons.medication),
             label: 'Meds',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.category),
             label: 'Categories',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.branding_watermark),
             label: 'Companies',
           ),
         ],
-        onTap: (page) {
+        onDestinationSelected: (page) {
           setState(() {
             currentPage = page;
           });

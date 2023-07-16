@@ -39,70 +39,68 @@ class HomeContainer extends StatelessWidget {
     final scaffoldController = context.watch<HomeContainerController>();
     final currentPage = scaffoldController.currentRoute;
 
-    return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/svg/ic_launcher.svg',
-                      width: 56,
-                      height: 56,
-                    ),
-                    const SizedBox(width: 16),
-                    const Text(
-                      'Pharmacy',
-                      style: TextStyle(fontSize: 30),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    scaffoldController.logout();
-                    Navigator.of(context).popUntil((route) => false);
-                    Navigator.of(context).pushNamed(Routes.LOGIN);
-                  },
-                  child: const Text('Logout'),
-                )
-              ],
-            ),
+    return NavigationDrawer(
+      children: [
+        DrawerHeader(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset(
+                    'assets/svg/ic_launcher.svg',
+                    width: 56,
+                    height: 56,
+                  ),
+                  const SizedBox(width: 16),
+                  const Text(
+                    'Pharmacy',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  scaffoldController.logout();
+                  Navigator.of(context).popUntil((route) => false);
+                  Navigator.of(context).pushNamed(Routes.LOGIN);
+                },
+                child: const Text('Logout'),
+              )
+            ],
           ),
-          ListTile(
-            title: const Text('Dashboard'),
-            selected: currentPage == HomeRoutes.DASHBOARD,
-            onTap: () {
-              scaffoldController.navigateDrawer(HomeRoutes.DASHBOARD);
-            },
-          ),
-          ListTile(
-            title: const Text('Database'),
-            selected: currentPage == HomeRoutes.DATABASE,
-            onTap: () {
-              scaffoldController.navigateDrawer(HomeRoutes.DATABASE);
-            },
-          ),
-          ListTile(
-            title: const Text('Storage'),
-            selected: currentPage == HomeRoutes.STORAGE,
-            onTap: () {
-              scaffoldController.navigateDrawer(HomeRoutes.STORAGE);
-            },
-          ),
-          ListTile(
-            title: const Text('Payments'),
-            selected: currentPage == HomeRoutes.PAYMENTS,
-            onTap: () {
-              scaffoldController.navigateDrawer(HomeRoutes.PAYMENTS);
-            },
-          ),
-        ],
-      ),
+        ),
+        ListTile(
+          title: const Text('Dashboard'),
+          selected: currentPage == HomeRoutes.DASHBOARD,
+          onTap: () {
+            scaffoldController.navigateDrawer(HomeRoutes.DASHBOARD);
+          },
+        ),
+        ListTile(
+          title: const Text('Database'),
+          selected: currentPage == HomeRoutes.DATABASE,
+          onTap: () {
+            scaffoldController.navigateDrawer(HomeRoutes.DATABASE);
+          },
+        ),
+        ListTile(
+          title: const Text('Storage'),
+          selected: currentPage == HomeRoutes.STORAGE,
+          onTap: () {
+            scaffoldController.navigateDrawer(HomeRoutes.STORAGE);
+          },
+        ),
+        ListTile(
+          title: const Text('Payments'),
+          selected: currentPage == HomeRoutes.PAYMENTS,
+          onTap: () {
+            scaffoldController.navigateDrawer(HomeRoutes.PAYMENTS);
+          },
+        ),
+      ],
     );
   }
 }
